@@ -1,4 +1,4 @@
-import { readdir } from 'fs/promises'
+import { access, mkdir, readdir, readFile, writeFile } from 'fs/promises'
 import { fileURLToPath } from "url";
 import { dirname, join, parse } from "path";
 
@@ -33,14 +33,46 @@ const restore = async () => {
 
     console.log('startDir', startDir)
 
-    let foundJson = await recursiveFileSearch(startDir);
-    console.log('foundJson', foundJson)
+    let foundJsonPath = await recursiveFileSearch(startDir);
+    console.log('foundJson', foundJsonPath)
 
-    if (!foundJson) {
+    if (!foundJsonPath) {
         throw new Error('FS operation failed');
     }
 
+    const snapshotDir = dirname(foundJsonPath);
+    console.log('snapshotDir', snapshotDir)
 
+    const workspaceRestoredPath = join(snapshotDir, 'workspace_restored');
+    console.log('workspaceRestoredPath', workspaceRestoredPath)
+
+    try {
+        await access(workspaceRestoredPath);
+
+        throw new Error('FS operation failed');
+    } catch {
+    }
+
+    const newWorkspaceFolder = await mkdir(workspaceRestoredPath);
+
+    const jsonFile = await readFile(foundJsonPath, 'utf-8');
+    const jsonContent = JSON.parse(jsonFile);
+
+    console.log('jsonContent', jsonContent);
+
+    for (const entry of jsonContent.entries) {
+        console.log('entry', entry);
+        const newElemPath = join(workspaceRestoredPath, entry.path);
+
+        if (entry.type === 'directory') {
+            await mkdir(newElemPath);
+        }
+
+        if (entry.type === 'file') {
+            const decodedContent = Buffer.from(entry.content, 'base64')
+            await writeFile(newElemPath, decodedContent);
+        }
+    }
 };
 
 await restore();
