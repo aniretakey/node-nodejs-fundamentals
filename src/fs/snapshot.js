@@ -76,11 +76,11 @@ const snapshot = async () => {
 
     const foundPathToWorkspaceFolder = await recursiveFolderSearch(startDir)
 
-    const filesInfo = await getFolderFilesInfo(foundPathToWorkspaceFolder, foundPathToWorkspaceFolder);
-
     if (!foundPathToWorkspaceFolder) {
         throw new Error('FS operation failed');
     }
+
+    const filesInfo = await getFolderFilesInfo(foundPathToWorkspaceFolder, foundPathToWorkspaceFolder);
 
     const result = {
         rootPath: foundPathToWorkspaceFolder,
