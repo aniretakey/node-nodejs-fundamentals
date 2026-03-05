@@ -1,5 +1,5 @@
-import { dirname, join, parse } from 'path';
-import { readdir } from 'fs/promises'
+import { dirname, join, parse, relative } from 'path';
+import { readdir, readFile, stat, writeFile } from 'fs/promises'
 import { fileURLToPath } from 'url'
 
 const recursiveFolderSearch = async (dir) => {
@@ -27,31 +27,37 @@ const recursiveFolderSearch = async (dir) => {
     return null;
 }
 
-const getFolderFilesInfo = async (dir) => {
+const getFolderFilesInfo = async (dir, workspaceRoot) => {
     const result = []
 
     const entries = await readdir(dir, {withFileTypes: true});
 
     for (const entry of entries) {
+        const absolutePath = join(dir, entry.name);
+        const relativePath = relative(workspaceRoot, absolutePath);
+
         if (entry.isDirectory()) {
             const folderInfo = {
-                path: entry.path,
+                path: relativePath,
                 type: 'directory'
             }
             result.push(folderInfo);
 
-            await getFolderFilesInfo(entry.path);
+            const nestedEntries = await getFolderFilesInfo(absolutePath, workspaceRoot);
+            result.push(...nestedEntries);
+
 
         } else {
-            const file = await readdir(entry.path, {withFileTypes: true});
+            const fileStat = await stat(absolutePath);
 
-            console.log('entry', entry.path, entry.name)
+            const fileBuffer = await readFile(absolutePath)
+            const fileContent = fileBuffer.toString('base64');
 
             const fileInfo = {
-                path: file,
+                path: relativePath,
                 type: "file",
-                size: 512,
-                content: "nested file contents as base64 string"
+                size: fileStat.size,
+                content: fileContent
             }
 
             result.push(fileInfo);
@@ -73,13 +79,7 @@ const snapshot = async () => {
 
     console.log('foundPathToWorkspaceFolder', foundPathToWorkspaceFolder)
 
-    const filesInfo = await getFolderFilesInfo(foundPathToWorkspaceFolder);
-
-    // Write your code here
-    // Recursively scan workspace directory
-    // Write snapshot.json with:
-    // - rootPath: absolute path to workspace
-    // - entries: flat array of relative paths and metadata
+    const filesInfo = await getFolderFilesInfo(foundPathToWorkspaceFolder, foundPathToWorkspaceFolder);
 
     if (!foundPathToWorkspaceFolder) {
         throw new Error('FS operation failed');
@@ -91,6 +91,10 @@ const snapshot = async () => {
     }
 
     console.log('result', result)
+
+    const snapshotDir = dirname(foundPathToWorkspaceFolder);
+    const snapshotPath = join(snapshotDir, 'snapshot.json');
+    await writeFile(snapshotPath, JSON.stringify(result, null, 2))
 
     return result
 };
