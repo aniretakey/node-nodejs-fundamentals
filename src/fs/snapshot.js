@@ -74,10 +74,7 @@ const snapshot = async () => {
     const __dirname = dirname(__filename);
     const startDir = parse(__dirname).dir
 
-
     const foundPathToWorkspaceFolder = await recursiveFolderSearch(startDir)
-
-    console.log('foundPathToWorkspaceFolder', foundPathToWorkspaceFolder)
 
     const filesInfo = await getFolderFilesInfo(foundPathToWorkspaceFolder, foundPathToWorkspaceFolder);
 
@@ -89,8 +86,6 @@ const snapshot = async () => {
         rootPath: foundPathToWorkspaceFolder,
         entries: filesInfo
     }
-
-    console.log('result', result)
 
     const snapshotDir = dirname(foundPathToWorkspaceFolder);
     const snapshotPath = join(snapshotDir, 'snapshot.json');
