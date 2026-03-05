@@ -43,13 +43,10 @@ const recursiveFileExtSearch = async (dir, ext, rootDir) => {
     const result = [];
     const entries = await readdir(dir, {withFileTypes: true});
 
-    console.log('entries', entries);
-
     for (const entry of entries) {
         const innerPath = join(dir, entry.name);
 
         if (entry.isDirectory()) {
-            console.log('dir!')
             const foundFiles = await recursiveFileExtSearch(innerPath, ext, rootDir);
             result.push(...foundFiles);
         }
@@ -57,7 +54,6 @@ const recursiveFileExtSearch = async (dir, ext, rootDir) => {
         if (!entry.isDirectory()) {
             const fileExt = extname(entry.name);
             const relativePath = relative(rootDir, innerPath);
-            console.log('fileExt', fileExt)
 
             if (fileExt === ext) {
                 result.push(relativePath)
@@ -65,13 +61,11 @@ const recursiveFileExtSearch = async (dir, ext, rootDir) => {
         }
     }
 
-    console.log('result', result);
     return result
 }
 
 const findByExt = async () => {
     const foundExtension = await getExtFromCmd();
-    console.log('found extension', foundExtension);
 
     const __filename = fileURLToPath(import.meta.url, fileURLToPath(import.meta.url));
     const __dirname = dirname(__filename);
@@ -84,7 +78,6 @@ const findByExt = async () => {
     }
 
     const res = await recursiveFileExtSearch(foundPathToWorkspaceFolder, foundExtension, foundPathToWorkspaceFolder);
-    console.log('res!!', res.sort((a, b) => a.localeCompare(b)));
     return res.sort((a, b) => a.localeCompare(b));
 };
 
