@@ -25,26 +25,20 @@ const recursiveFileSearch = async (dir) => {
     return null;
 }
 
-
 const restore = async () => {
     const __filename = fileURLToPath(import.meta.url, fileURLToPath(import.meta.url));
     const __dirname = dirname(__filename);
     const startDir = parse(__dirname).dir
 
-    console.log('startDir', startDir)
-
     let foundJsonPath = await recursiveFileSearch(startDir);
-    console.log('foundJson', foundJsonPath)
 
     if (!foundJsonPath) {
         throw new Error('FS operation failed');
     }
 
     const snapshotDir = dirname(foundJsonPath);
-    console.log('snapshotDir', snapshotDir)
 
     const workspaceRestoredPath = join(snapshotDir, 'workspace_restored');
-    console.log('workspaceRestoredPath', workspaceRestoredPath)
 
     try {
         await access(workspaceRestoredPath);
@@ -52,16 +46,13 @@ const restore = async () => {
         throw new Error('FS operation failed');
     } catch {
     }
-
-    const newWorkspaceFolder = await mkdir(workspaceRestoredPath);
+    
+    await mkdir(workspaceRestoredPath);
 
     const jsonFile = await readFile(foundJsonPath, 'utf-8');
     const jsonContent = JSON.parse(jsonFile);
 
-    console.log('jsonContent', jsonContent);
-
     for (const entry of jsonContent.entries) {
-        console.log('entry', entry);
         const newElemPath = join(workspaceRestoredPath, entry.path);
 
         if (entry.type === 'directory') {
