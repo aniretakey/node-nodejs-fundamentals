@@ -21,9 +21,7 @@ const recursiveFolderSearch = async (dir) => {
 
     for (const entry of entries) {
         if (entry.isDirectory() && entry.name === 'workspace') {
-            const workspacePath = join(dir, entry.name);
-
-            return workspacePath;
+            return join(dir, entry.name);
         }
     }
 
