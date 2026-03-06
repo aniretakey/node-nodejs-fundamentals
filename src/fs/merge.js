@@ -1,5 +1,6 @@
-import { readdir } from 'fs/promises';
-import { join } from 'path';
+import { readdir, writeFile } from 'fs/promises';
+import { dirname, join, parse } from 'path';
+import { fileURLToPath } from "url";
 
 const recursiveFolderSearch = async (dir) => {
     const entries = await readdir(dir, {withFileTypes: true});
@@ -24,10 +25,22 @@ const recursiveFolderSearch = async (dir) => {
 };
 
 const merge = async () => {
-    // Write your code here
-    // Default: read all .txt files from workspace/parts in alphabetical order
-    // Optional: support --files filename1,filename2,... to merge specific files in provided order
-    // Concatenate content and write to workspace/merged.txt
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    const startDir = parse(__dirname).dir;
+
+    const workspacePath = await recursiveFolderSearch(startDir);
+    if (!workspacePath) {
+        throw new Error('FS operation failed');
+    }
+
+    const partsDir = join(workspacePath, 'parts');
+    const mergedFilePath = join(workspacePath, 'merged.txt');
+
+    let allContent = '';
+
+
+    await writeFile(mergedFilePath, allContent.trim());
 };
 
 await merge();
