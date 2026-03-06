@@ -8,15 +8,9 @@ const cmdActions = {
         console.log('Goodbye!');
         process.exit();
     }
-
 }
 
 const interactive = () => {
-    const args = process.argv.slice(2);
-
-    console.log('args', args)
-
-
     const readLine = readline.createInterface({
         input: process.stdin,
         output: process.stdout,
