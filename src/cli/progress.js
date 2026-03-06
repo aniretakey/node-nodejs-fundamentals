@@ -50,7 +50,7 @@ const progress = () => {
         process.stdout.write(`\r${progressString}`)
 
         if (progressPercent >= 100) {
-            process.stdout.write('Done!');
+            process.stdout.write('\nDone!\n');
             clearInterval(timer);
         }
 
