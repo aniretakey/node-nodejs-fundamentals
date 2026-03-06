@@ -1,8 +1,44 @@
+import readline from 'readline';
+
+const cmdActions = {
+    'uptime': () => console.log(`Uptime: ${process.uptime()} s`),
+    'cwd': () => console.log(process.cwd()),
+    'date': () => console.log(new Date()),
+    'exit': () => {
+        console.log('Goodbye!');
+        process.exit();
+    }
+
+}
+
 const interactive = () => {
-  // Write your code here
-  // Use readline module for interactive CLI
-  // Support commands: uptime, cwd, date, exit
-  // Handle Ctrl+C and unknown commands
+    const args = process.argv.slice(2);
+
+    console.log('args', args)
+
+
+    const readLine = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+        prompt: '> '
+    });
+
+    readLine.prompt()
+
+    readLine.on('line', (line) => {
+        const lineWithoutWhitespace = line.trim();
+        if (lineWithoutWhitespace in cmdActions) {
+            cmdActions[lineWithoutWhitespace]()
+        } else {
+            console.log('Unknown command')
+        }
+
+    })
+
+    readLine.on('SIGINT', () => {
+        console.log('Goodbye!');
+        process.exit();
+    })
 };
 
 interactive();
