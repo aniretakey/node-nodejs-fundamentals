@@ -39,6 +39,21 @@ const merge = async () => {
 
     let allContent = '';
 
+    const args = process.argv.slice(2);
+
+    console.log('args', args)
+
+    let filesToMerge = null;
+
+    for (let i = 0; i < args.length; i++) {
+        if (args[i] === '--files' && args[i + 1]) {
+            filesToMerge = args[i + 1].split(',');
+            i++;
+            break;
+        }
+    }
+
+    console.log('filesToMerge', filesToMerge)
 
     await writeFile(mergedFilePath, allContent.trim());
 };
