@@ -1,0 +1,13 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+/git_toolbox_blame.xml
+/git_toolbox_prj.xml
+/jsLibraryMappings.xml
+/material_theme_project_new.xml
+/modules.xml
+/node-nodejs-fundamentals.iml
+/prettier.xml
+/vcs.xml
