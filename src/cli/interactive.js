@@ -29,8 +29,10 @@ const interactive = () => {
         const lineWithoutWhitespace = line.trim();
         if (lineWithoutWhitespace in cmdActions) {
             cmdActions[lineWithoutWhitespace]()
+            readLine.prompt()
         } else {
             console.log('Unknown command')
+            readLine.prompt()
         }
 
     })
