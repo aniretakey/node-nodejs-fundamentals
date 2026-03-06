@@ -1,4 +1,4 @@
-import { readdir, writeFile } from 'fs/promises';
+import { access, readdir, readFile, writeFile } from 'fs/promises';
 import { dirname, join, parse } from 'path';
 import { fileURLToPath } from "url";
 
@@ -40,9 +40,6 @@ const merge = async () => {
     let allContent = '';
 
     const args = process.argv.slice(2);
-
-    console.log('args', args)
-
     let filesToMerge = null;
 
     for (let i = 0; i < args.length; i++) {
@@ -53,7 +50,41 @@ const merge = async () => {
         }
     }
 
-    console.log('filesToMerge', filesToMerge)
+    if (filesToMerge) {
+        for (const filename of filesToMerge) {
+            const trimmedFilename = filename.trim();
+            const filePath = join(partsDir, trimmedFilename);
+
+            try {
+                await access(filePath);
+                const fileContent = await readFile(filePath, 'utf8');
+                allContent += fileContent + '\n';
+            } catch {
+                throw new Error('FS operation failed');
+            }
+        }
+    } else {
+        try {
+            await access(partsDir);
+            const entries = await readdir(partsDir, {withFileTypes: true});
+            const txtFiles = entries
+                .filter(entry => !entry.isDirectory() && entry.name.endsWith('.txt'))
+                .map(entry => entry.name)
+                .sort();
+
+            if (txtFiles.length === 0) {
+                throw new Error('FS operation failed');
+            }
+
+            for (const filename of txtFiles) {
+                const filePath = join(partsDir, filename);
+                const fileContent = await readFile(filePath, 'utf8');
+                allContent += fileContent + '\n';
+            }
+        } catch {
+            throw new Error('FS operation failed');
+        }
+    }
 
     await writeFile(mergedFilePath, allContent.trim());
 };
